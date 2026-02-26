@@ -70,8 +70,8 @@ function ViewCounter() {
   );
 }
 
-function ChatBot() {
-  const [open, setOpen] = useState(false);
+function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -204,8 +204,8 @@ function ChatBot() {
                 )}
                 <div
                   className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${msg.role === "user"
-                      ? "rounded-br-sm bg-indigo-600 text-white"
-                      : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+                    ? "rounded-br-sm bg-indigo-600 text-white"
+                    : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
                     }`}
                 >
                   {msg.content}
@@ -339,43 +339,62 @@ function ResumeModal({ onClose }: { onClose: () => void }) {
 }
 
 
-function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
+function BuiltByBanner({ onViewResume, onOpenChat }: { onViewResume: () => void; onOpenChat: () => void }) {
   return (
     <div className="w-full rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       {/* Identity row */}
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white shadow">
-          AY
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3 min-w-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white shadow">
+            AY
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               Ashish Yadav
             </span>
+            {/* Chip — bigger, below name */}
             <Chip
               label="Open to opportunities"
               size="small"
+              icon={
+                <span style={{ display: "flex", alignItems: "center", paddingLeft: "6px" }}>
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                  </span>
+                </span>
+              }
               sx={{
-                fontSize: "0.58rem",
-                height: "17px",
+                fontSize: "0.68rem",
+                height: "22px",
+                width: "fit-content",
                 backgroundColor: "rgba(34,197,94,0.12)",
                 color: "#16a34a",
                 border: "1px solid rgba(34,197,94,0.3)",
-                "& .MuiChip-label": { px: 0.8 },
+                fontWeight: 500,
+                "& .MuiChip-label": { px: 1 },
+                "& .MuiChip-icon": { ml: 0 },
               }}
             />
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
-            Frontend Developer · Next.js · TypeScript · React
-          </p>
         </div>
+
+        {/* Chat button — right side */}
+        <Tooltip title="Chat with Ashish's AI" placement="left">
+          <button
+            onClick={onOpenChat}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-600 shadow transition-all duration-200 hover:scale-110 hover:bg-indigo-500"
+          >
+            <MessageCircle className="h-4 w-4 text-white" />
+          </button>
+        </Tooltip>
       </div>
 
       {/* Divider */}
       <div className="my-3 border-t border-neutral-100 dark:border-neutral-800" />
 
-      {/* Buttons row */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* Buttons */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
         <MuiButton
           href="https://github.com/ITSASHISHGITHUB"
           target="_blank"
@@ -392,6 +411,7 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
             color: "#374151",
             px: 1.5,
             minWidth: 0,
+            width: { xs: "100%", sm: "auto" },
             "&:hover": {
               borderColor: "#6366f1",
               color: "#6366f1",
@@ -418,6 +438,7 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
             color: "#374151",
             px: 1.5,
             minWidth: 0,
+            width: { xs: "100%", sm: "auto" },
             "&:hover": {
               borderColor: "#6366f1",
               color: "#6366f1",
@@ -434,7 +455,6 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
           size="small"
           startIcon={<FileText size={12} />}
           sx={{
-            ml: "auto",
             textTransform: "none",
             fontSize: "0.72rem",
             fontWeight: 500,
@@ -443,6 +463,8 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
             boxShadow: "none",
             px: 1.5,
             minWidth: 0,
+            width: { xs: "100%", sm: "auto" },
+            ml: { xs: 0, sm: "auto" },
             "&:hover": { backgroundColor: "#4f46e5", boxShadow: "none" },
           }}
         >
@@ -452,25 +474,20 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
     </div>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────
-   Heading — default export
-───────────────────────────────────────────────────────────── */
 export default function Heading() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <>
       {resumeOpen && <ResumeModal onClose={() => setResumeOpen(false)} />}
-      <ChatBot />
+      <ChatBot open={chatOpen} setOpen={setChatOpen} />
 
       <div className="w-full max-w-3xl space-y-5 px-4 sm:px-0">
 
-        {/* View counter */}
         <ViewCounter />
 
-        {/* Heading */}
         <div className="space-y-3">
           <h1 className="text-[1.6rem] font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
             Write. Plan. Collaborate.{" "}
@@ -507,7 +524,12 @@ export default function Heading() {
             </Button>
           </SignUpButton>
         )}
-        <BuiltByBanner onViewResume={() => setResumeOpen(true)} />
+
+        <BuiltByBanner
+          onViewResume={() => setResumeOpen(true)}
+          onOpenChat={() => setChatOpen(true)}
+        />
+
       </div>
     </>
   );
