@@ -366,7 +366,7 @@ function BuiltByBanner({
               Ashish Yadav
             </span>
             <Chip
-              label="Open to opportunities"
+              label="Available for exciting work"
               size="small"
               icon={
                 <span style={{ display: "flex", alignItems: "center", paddingLeft: "6px" }}>
