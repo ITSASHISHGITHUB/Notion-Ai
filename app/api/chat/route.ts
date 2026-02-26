@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "edge"; // ← fixes Vercel deployment
+export const dynamic = "force-dynamic"; // ← prevents caching
+
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
@@ -29,7 +32,7 @@ Key facts about Ashish:
 - GitHub: github.com/ITSASHISHGITHUB
 - LinkedIn: linkedin.com/in/Ashishyadav677
 
-Answer questions about Ashish's background, skills, and experience in a friendly, concise way. Keep answers to 2-3 sentences max. If asked something you don't know, say you're not sure but Ashish would be happy to discuss further.`,
+Answer questions about Ashish's background, skills, and experience in a friendly, concise way. Keep answers to 2-3 sentences max.`,
             },
             ...messages.map((m: { role: string; content: string }) => ({
               role: m.role,
