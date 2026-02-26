@@ -14,7 +14,6 @@ import {
   MessageCircle,
   Send,
   Bot,
-  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -33,6 +32,9 @@ const RESUME_PREVIEW_URL =
   "https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/preview";
 const RESUME_VIEW_URL =
   "https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view";
+
+// ← Adjust this to match your footer's actual height
+const FOOTER_HEIGHT = "5rem";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -54,12 +56,10 @@ function ViewCounter() {
 
   return (
     <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
-      {/* Live green dot */}
       <span className="relative flex h-2 w-2 shrink-0">
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
         <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
       </span>
-
       <span>
         <span className="font-semibold text-neutral-700 dark:text-neutral-300">
           {count.toLocaleString()}
@@ -70,8 +70,10 @@ function ViewCounter() {
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   ChatBot
+───────────────────────────────────────────────────────────── */
 function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
-
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -107,10 +109,7 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: updated.map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
+          messages: updated.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
 
@@ -120,10 +119,7 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
     } catch {
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: "Something went wrong. Please try again!",
-        },
+        { role: "assistant", content: "Something went wrong. Please try again!" },
       ]);
     } finally {
       setLoading(false);
@@ -139,8 +135,12 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
 
   return (
     <>
+      {/* Floating button — sits above the footer */}
       {!open && (
-        <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
+        <div
+          className="fixed right-5 z-50 sm:right-6"
+          style={{ bottom: FOOTER_HEIGHT }}
+        >
           <Tooltip title="Chat with Ashish's AI" placement="left">
             <button
               onClick={() => setOpen(true)}
@@ -154,12 +154,12 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
         </div>
       )}
 
-      {/* Chat panel */}
+      {/* Chat panel — also sits above the footer */}
       {open && (
         <div
           className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
           style={{
-            bottom: "1.25rem",
+            bottom: FOOTER_HEIGHT,   // ← key fix: clears the footer
             right: "1.25rem",
             width: "calc(100vw - 2.5rem)",
             maxWidth: "24rem",
@@ -194,8 +194,9 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"
-                  }`}
+                className={`flex items-end gap-2 ${
+                  msg.role === "user" ? "flex-row-reverse" : "flex-row"
+                }`}
               >
                 {msg.role === "assistant" && (
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
@@ -203,10 +204,11 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
                   </div>
                 )}
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${msg.role === "user"
-                    ? "rounded-br-sm bg-indigo-600 text-white"
-                    : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
-                    }`}
+                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${
+                    msg.role === "user"
+                      ? "rounded-br-sm bg-indigo-600 text-white"
+                      : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+                  }`}
                 >
                   {msg.content}
                 </div>
@@ -259,6 +261,9 @@ function ChatBot({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => vo
   );
 }
 
+/* ─────────────────────────────────────────────────────────────
+   ResumeModal
+───────────────────────────────────────────────────────────── */
 function ResumeModal({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -338,8 +343,16 @@ function ResumeModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-
-function BuiltByBanner({ onViewResume, onOpenChat }: { onViewResume: () => void; onOpenChat: () => void }) {
+/* ─────────────────────────────────────────────────────────────
+   BuiltByBanner
+───────────────────────────────────────────────────────────── */
+function BuiltByBanner({
+  onViewResume,
+  onOpenChat,
+}: {
+  onViewResume: () => void;
+  onOpenChat: () => void;
+}) {
   return (
     <div className="w-full rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
       {/* Identity row */}
@@ -352,7 +365,6 @@ function BuiltByBanner({ onViewResume, onOpenChat }: { onViewResume: () => void;
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               Ashish Yadav
             </span>
-            {/* Chip — bigger, below name */}
             <Chip
               label="Open to opportunities"
               size="small"
@@ -379,7 +391,7 @@ function BuiltByBanner({ onViewResume, onOpenChat }: { onViewResume: () => void;
           </div>
         </div>
 
-        {/* Chat button — right side */}
+        {/* Chat button */}
         <Tooltip title="Chat with Ashish's AI" placement="left">
           <button
             onClick={onOpenChat}
@@ -474,6 +486,10 @@ function BuiltByBanner({ onViewResume, onOpenChat }: { onViewResume: () => void;
     </div>
   );
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Heading (default export)
+───────────────────────────────────────────────────────────── */
 export default function Heading() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [resumeOpen, setResumeOpen] = useState(false);
@@ -485,7 +501,6 @@ export default function Heading() {
       <ChatBot open={chatOpen} setOpen={setChatOpen} />
 
       <div className="w-full max-w-3xl space-y-5 px-4 sm:px-0">
-
         <ViewCounter />
 
         <div className="space-y-3">
@@ -529,7 +544,6 @@ export default function Heading() {
           onViewResume={() => setResumeOpen(true)}
           onOpenChat={() => setChatOpen(true)}
         />
-
       </div>
     </>
   );
