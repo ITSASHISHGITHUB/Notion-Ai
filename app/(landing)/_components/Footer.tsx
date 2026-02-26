@@ -22,24 +22,35 @@ export const Footer = () => {
 
   return (
     <>
-      <footer className="bg-background dark:bg-dark z-50 flex w-full items-center p-4 md:px-8">
+      <footer className="bg-background dark:bg-dark z-50 flex w-full items-center justify-between p-4 md:px-8">
         <Logo />
-        <div className="text-muted-foreground flex w-full items-center justify-between gap-x-1 md:ml-auto md:justify-end">
-          <Button variant="ghost" size="sm" onClick={() => setOpenPolicy("privacy")}>
-            About me
-          </Button>
-          {/* <Button variant="ghost" size="sm" onClick={() => setOpenPolicy("terms")}>
-            Terms and Conditions
-          </Button> */}
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground"
+          onClick={() => setOpenPolicy("privacy")}
+        >
+          About me
+        </Button>
       </footer>
 
       {openPolicy !== null && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setOpenPolicy(null)}>
-          <div className="bg-background relative flex h-[90vh] w-full max-w-4xl flex-col rounded-xl shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          onClick={() => setOpenPolicy(null)}
+        >
+          <div
+            className="bg-background relative flex h-[90vh] w-full max-w-4xl flex-col rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b px-6 py-4">
               <h2 className="text-lg font-semibold">{TITLES[openPolicy]}</h2>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setOpenPolicy(null)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={() => setOpenPolicy(null)}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>

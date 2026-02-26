@@ -1,5 +1,5 @@
 import { Footer } from "./_components/Footer";
-import { Heading } from "./_components/Heading";
+import Heading from "./_components/Heading";
 import { Heroes } from "./_components/Heroes";
 
 export default function LandingPage() {

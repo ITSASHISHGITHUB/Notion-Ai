@@ -2,258 +2,459 @@
 
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignUpButton } from "@clerk/nextjs";
 import { useConvexAuth } from "convex/react";
-import { ArrowRight, Github, Linkedin, Code2, Zap, ExternalLink, X, FileText, User, MapPin, GraduationCap, Briefcase } from "lucide-react";
+import {
+  ArrowRight,
+  X,
+  ExternalLink,
+  FileText,
+  MessageCircle,
+  Send,
+  Bot,
+} from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import React from "react";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import Chip from "@mui/material/Chip";
+import IconButton from "@mui/material/IconButton";
+import MuiButton from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
 
-const DevBadge = () => (
-  <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
-    <span className="relative flex h-1.5 w-1.5 shrink-0">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
-      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-orange-500" />
-    </span>
-    <span className="whitespace-nowrap">Open to opportunities</span>
-  </div>
-);
-
+/* ─────────────────────────────────────────────────────────────
+   Constants
+───────────────────────────────────────────────────────────── */
 const RESUME_PREVIEW_URL =
   "https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/preview";
+const RESUME_VIEW_URL =
+  "https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view";
 
-const ResumeModal = ({ onClose }: { onClose: () => void }) => (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
-    onClick={onClose}
-  >
-    {/* Backdrop */}
-    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
-    {/* Modal frame */}
-    <div
-      className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
-      style={{ height: "90vh" }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2.5 sm:px-5 sm:py-3 dark:border-neutral-800">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white">
-            AY
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-              Ashish Yadav — Resume
-            </p>
-            <p className="text-xs text-neutral-400">Frontend Developer · 2.5 yrs exp</p>
-          </div>
+/* ─────────────────────────────────────────────────────────────
+   ChatBot
+───────────────────────────────────────────────────────────── */
+function ChatBot() {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content: "Hi! I'm Ashish's AI assistant. Ask me anything about his skills, experience, or projects! 👋",
+    },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [open]);
+
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+
+    const userMsg: ChatMessage = { role: "user", content: text };
+    const updated = [...messages, userMsg];
+    setMessages(updated);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updated.map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+        }),
+      });
+
+      const data = await response.json();
+      const reply = data?.reply ?? "Sorry, I couldn't get a response.";
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Something went wrong. Please try again!" },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  return (
+    <>
+      {/* Toggle button */}
+      {!open && (
+        <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
+          <Tooltip title="Chat with Ashish's AI" placement="left">
+            <button
+              onClick={() => setOpen(true)}
+              style={{ width: 52, height: 52 }}
+              className="relative flex items-center justify-center rounded-full bg-indigo-600 shadow-lg transition-all duration-200 hover:scale-110 hover:bg-indigo-500"
+            >
+              <MessageCircle className="h-5 w-5 text-white" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-20" />
+            </button>
+          </Tooltip>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 ml-2 shrink-0">
-          <a
-            href="https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Open in Drive
-          </a>
-          {/* Mobile: icon-only Drive link */}
-          <a
-            href="https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="sm:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </a>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Iframe */}
-      <div className="flex-1 bg-neutral-100 dark:bg-neutral-950">
-        <iframe
-          src={RESUME_PREVIEW_URL}
-          className="h-full w-full border-0"
-          allow="autoplay"
-          title="Ashish Yadav Resume"
-        />
-      </div>
-    </div>
-  </div>
-);
-
-const AboutMe = ({ onViewResume }: { onViewResume: () => void }) => (
-  <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-gradient-to-br from-white to-neutral-50 p-4 sm:p-5 shadow-sm dark:border-neutral-800 dark:from-neutral-900 dark:to-neutral-950">
-    {/* Top accent */}
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent opacity-70" />
-
-    {/* Section label */}
-    <div className="mb-4 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <User className="h-4 w-4 shrink-0 text-indigo-500" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
-          About Me
-        </span>
-      </div>
-      <button
-        onClick={onViewResume}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-medium text-violet-700 transition-all hover:-translate-y-0.5 hover:shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-400"
-      >
-        <FileText className="h-3.5 w-3.5" />
-        View Resume
-      </button>
-    </div>
-
-    {/* Bio */}
-    <p className="mb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-      Hey! I&apos;m a passionate Frontend Developer based in{" "}
-      <span className="inline-flex items-center gap-1 font-medium text-neutral-800 dark:text-neutral-200">
-        <MapPin className="h-3 w-3 text-rose-400" /> Bengaluru, India
-      </span>{" "}
-      with 2.5 years of experience building fast, scalable web apps. I love crafting
-      pixel-perfect UIs and shipping products that users enjoy.
-    </p>
-
-    {/* Info grid — stacks on mobile */}
-    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-      <div className="flex items-start gap-2.5 rounded-lg bg-neutral-100/70 p-3 dark:bg-neutral-800/50">
-        <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-            Education
-          </p>
-          <p className="text-xs text-neutral-500">
-            B.E · Brindavan College of Engineering (VTU) · GPA 7.76
-          </p>
-        </div>
-      </div>
-      <div className="flex items-start gap-2.5 rounded-lg bg-neutral-100/70 p-3 dark:bg-neutral-800/50">
-        <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" />
-        <div className="min-w-0">
-          <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-            Current Role
-          </p>
-          <p className="text-xs text-neutral-500">
-            Frontend Dev · WeSage / MCQMarkets · Full-stack features
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Tech tags */}
-    <div className="mt-3 flex flex-wrap gap-1.5">
-      {["Next.js 15", "TypeScript", "React 18", "NestJS", "Docker", "Jest", "TailwindCSS", "Redis"].map(
-        (tech) => (
-          <span
-            key={tech}
-            className="rounded-full border border-neutral-200 bg-white px-2.5 py-0.5 text-xs font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400"
-          >
-            {tech}
-          </span>
-        )
       )}
+
+      {/* Chat panel */}
+      {open && (
+        <div
+          className="fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
+          style={{
+            bottom: "1.25rem",
+            right: "1.25rem",
+            width: "calc(100vw - 2.5rem)",
+            maxWidth: "24rem",
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between bg-indigo-600 px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
+                <Bot className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  Ashish&apos;s Assistant
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                  <p className="text-xs text-indigo-200">Online</p>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="flex h-7 w-7 items-center justify-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex h-64 flex-col gap-3 overflow-y-auto p-4">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"
+                  }`}
+              >
+                {msg.role === "assistant" && (
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
+                    <Bot className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                )}
+                <div
+                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${msg.role === "user"
+                      ? "rounded-br-sm bg-indigo-600 text-white"
+                      : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
+                    }`}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex items-end gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
+                  <Bot className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-neutral-100 px-4 py-3 dark:bg-neutral-800">
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:0ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:150ms]" />
+                  <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-neutral-400 [animation-delay:300ms]" />
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-neutral-100 p-3 dark:border-neutral-800">
+            <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-800">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder="Ask me anything..."
+                disabled={loading}
+                className="flex-1 bg-transparent text-sm text-neutral-800 placeholder-neutral-400 outline-none dark:text-neutral-200 disabled:opacity-50"
+              />
+              <button
+                onClick={sendMessage}
+                disabled={loading || !input.trim()}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Send className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <p className="mt-1.5 text-center text-[10px] text-neutral-400">
+              Powered byGroqCloud
+            </p>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ResumeModal
+───────────────────────────────────────────────────────────── */
+function ResumeModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div
+        className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
+        style={{ height: "90vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3 dark:border-neutral-800">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white">
+              AY
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                Ashish Yadav — Resume
+              </p>
+              <p className="text-xs text-neutral-400">
+                Frontend Developer · 2.5 yrs exp
+              </p>
+            </div>
+          </div>
+          <div className="ml-2 flex shrink-0 items-center gap-1.5">
+            <MuiButton
+              href={RESUME_VIEW_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="small"
+              variant="outlined"
+              startIcon={<ExternalLink size={13} />}
+              sx={{
+                display: { xs: "none", sm: "inline-flex" },
+                textTransform: "none",
+                fontSize: "0.7rem",
+                fontWeight: 500,
+                borderRadius: "8px",
+                borderColor: "#e5e7eb",
+                color: "#374151",
+                px: 1.5,
+                "&:hover": { borderColor: "#6366f1", color: "#6366f1" },
+              }}
+            >
+              Open in Drive
+            </MuiButton>
+            <Tooltip title="Open in Drive">
+              <IconButton
+                href={RESUME_VIEW_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                size="small"
+                sx={{ display: { xs: "flex", sm: "none" } }}
+              >
+                <ExternalLink size={15} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Close">
+              <IconButton onClick={onClose} size="small">
+                <X size={15} />
+              </IconButton>
+            </Tooltip>
+          </div>
+        </div>
+        <div className="flex-1 bg-neutral-100 dark:bg-neutral-950">
+          <iframe
+            src={RESUME_PREVIEW_URL}
+            className="h-full w-full border-0"
+            allow="autoplay"
+            title="Ashish Yadav Resume"
+          />
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
-const BuiltByBanner = () => (
-  <div className="group relative overflow-hidden rounded-xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-4 shadow-sm transition-all duration-300 hover:shadow-md dark:border-neutral-800 dark:from-neutral-900 dark:to-neutral-950">
-    {/* Decorative accent */}
-    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400 to-transparent opacity-60" />
+/* ─────────────────────────────────────────────────────────────
+   BuiltByBanner
+───────────────────────────────────────────────────────────── */
+function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
+  return (
+    <div className="w-full rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
 
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      {/* Left: Identity */}
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-sm font-bold text-white shadow-inner">
+      {/* Identity row */}
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white shadow">
           AY
         </div>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+
+        {/* Name + chip + subtitle */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               Ashish Yadav
             </span>
-            <DevBadge />
+            <Chip
+              label="Open to opportunities"
+              size="small"
+              sx={{
+                fontSize: "0.58rem",
+                height: "17px",
+                backgroundColor: "rgba(34,197,94,0.12)",
+                color: "#16a34a",
+                border: "1px solid rgba(34,197,94,0.3)",
+                "& .MuiChip-label": { px: 0.8 },
+              }}
+            />
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Frontend Developer · Next.js · TypeScript · React
           </p>
         </div>
       </div>
 
-      {/* Right: Links — no longer offset on mobile, just left-aligned naturally */}
-      <div className="flex items-center gap-2">
-        <a
+      {/* Divider */}
+      <div className="my-3 border-t border-neutral-100 dark:border-neutral-800" />
+
+      {/* Buttons row */}
+      <div className="flex flex-wrap items-center gap-2">
+        <MuiButton
           href="https://github.com/ITSASHISHGITHUB"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:border-neutral-600"
+          variant="outlined"
+          size="small"
+          startIcon={<GitHubIcon sx={{ fontSize: "0.95rem !important" }} />}
+          sx={{
+            textTransform: "none",
+            fontSize: "0.72rem",
+            fontWeight: 500,
+            borderRadius: "8px",
+            borderColor: "#e5e7eb",
+            color: "#374151",
+            px: 1.5,
+            minWidth: 0,
+            "&:hover": { borderColor: "#6366f1", color: "#6366f1", backgroundColor: "rgba(99,102,241,0.04)" },
+          }}
         >
-          <Github className="h-3.5 w-3.5" />
           GitHub
-          <ExternalLink className="h-3 w-3 opacity-50" />
-        </a>
-        <a
+        </MuiButton>
+
+        <MuiButton
           href="https://linkedin.com/in/Ashishyadav677"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-400"
+          variant="outlined"
+          size="small"
+          startIcon={<LinkedInIcon sx={{ fontSize: "0.95rem !important" }} />}
+          sx={{
+            textTransform: "none",
+            fontSize: "0.72rem",
+            fontWeight: 500,
+            borderRadius: "8px",
+            borderColor: "#e5e7eb",
+            color: "#374151",
+            px: 1.5,
+            minWidth: 0,
+            "&:hover": { borderColor: "#6366f1", color: "#6366f1", backgroundColor: "rgba(99,102,241,0.04)" },
+          }}
         >
-          <Linkedin className="h-3.5 w-3.5" />
           LinkedIn
-          <ExternalLink className="h-3 w-3 opacity-50" />
-        </a>
+        </MuiButton>
+
+        {/* Resume pushed right */}
+        <MuiButton
+          onClick={onViewResume}
+          variant="contained"
+          size="small"
+          startIcon={<FileText size={12} />}
+          sx={{
+            ml: "auto",
+            textTransform: "none",
+            fontSize: "0.72rem",
+            fontWeight: 500,
+            borderRadius: "8px",
+            backgroundColor: "#6366f1",
+            boxShadow: "none",
+            px: 1.5,
+            minWidth: 0,
+            "&:hover": { backgroundColor: "#4f46e5", boxShadow: "none" },
+          }}
+        >
+          Resume
+        </MuiButton>
       </div>
     </div>
+  );
+}
 
-    {/* Stats row — wraps cleanly on mobile */}
-    <div className="mt-3 flex flex-col gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800 sm:flex-row sm:flex-wrap sm:gap-3">
-      {[
-        { icon: <Zap className="h-3 w-3" />, label: "64% faster load time at XpressBees" },
-        { icon: <Code2 className="h-3 w-3" />, label: "2.5 yrs · Next.js · NestJS · Docker" },
-      ].map(({ icon, label }) => (
-        <span
-          key={label}
-          className="inline-flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500"
-        >
-          <span className="text-violet-500 shrink-0">{icon}</span>
-          {label}
-        </span>
-      ))}
-    </div>
-  </div>
-);
-
-export const Heading = () => {
+/* ─────────────────────────────────────────────────────────────
+   Heading — default export
+───────────────────────────────────────────────────────────── */
+export default function Heading() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [resumeOpen, setResumeOpen] = useState(false);
 
   return (
     <>
       {resumeOpen && <ResumeModal onClose={() => setResumeOpen(false)} />}
+      <ChatBot />
 
-      <div className="w-full max-w-3xl space-y-4 px-4 sm:px-0">
-        <h1 className="text-2xl font-bold leading-tight sm:text-4xl md:text-5xl">
-          Your Ideas💡, Documents📕, & Plans🚀. Welcome to{" "}
-          <span className="underline">Notion Ai</span>
-        </h1>
-        <h2 className="text-sm font-medium sm:text-xl">
-          Notion Ai is the connected workspace where{" "}
-          <br className="hidden sm:block" />
-          better, faster work happens.
-        </h2>
+      <div className="w-full max-w-3xl space-y-5 px-4 sm:px-0">
+
+        {/* Heading */}
+        <div className="space-y-3">
+          <h1 className="text-[1.6rem] font-bold leading-tight tracking-tight sm:text-4xl md:text-5xl">
+            Write. Plan. Collaborate.{" "}
+            <span className="underline decoration-indigo-400 underline-offset-4">
+              All in one place.
+            </span>
+          </h1>
+          <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-400 sm:text-base">
+            Notion AI brings your notes, tasks, and docs together in one smart
+            workspace — so you spend less time organizing and more time doing.
+          </p>
+        </div>
 
         {isLoading && (
           <div className="flex w-full items-center justify-center">
             <Spinner size="md" />
           </div>
         )}
+
         {isAuthenticated && !isLoading && (
           <Button asChild>
             <Link href="/documents">
@@ -262,6 +463,7 @@ export const Heading = () => {
             </Link>
           </Button>
         )}
+
         {!isAuthenticated && !isLoading && (
           <SignUpButton mode="modal">
             <Button>
@@ -271,10 +473,8 @@ export const Heading = () => {
           </SignUpButton>
         )}
 
-        <AboutMe onViewResume={() => setResumeOpen(true)} />
-
-        <BuiltByBanner />
+        <BuiltByBanner onViewResume={() => setResumeOpen(true)} />
       </div>
     </>
   );
-};
+}

@@ -9,7 +9,7 @@ const font = Poppins({
 
 export const Logo = () => {
   return (
-    <div className="items-center gap-x-2 md:flex">
+    <div className="flex items-center gap-x-2">
       <Image
         src="/logo.svg"
         height="40"
@@ -24,7 +24,9 @@ export const Logo = () => {
         alt="logo"
         className="hidden dark:block"
       />
-      <p className={cn("font-semibold", font.className)}>Notion Ai</p>
+      <p className={cn("hidden md:block font-semibold whitespace-nowrap", font.className)}>
+        Notion AI
+      </p>
     </div>
   );
 };
