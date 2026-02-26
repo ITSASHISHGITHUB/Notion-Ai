@@ -41,7 +41,7 @@ export const Navbar = () => {
           {isAuthenticated && !isLoading && (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/documents"> Enter Notion Ai </Link>
+                <Link href="/documents"> Take me in </Link>
               </Button>
               <UserButton afterSignOutUrl="/" />
             </>

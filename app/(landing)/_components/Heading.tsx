@@ -53,21 +53,23 @@ function ViewCounter() {
   if (count === undefined) return null;
 
   return (
-    <div className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
-      <Eye className="h-3 w-3 text-indigo-500" />
+    <div className="inline-flex items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+      {/* Live green dot */}
+      <span className="relative flex h-2 w-2 shrink-0">
+        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+        <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+      </span>
+
       <span>
         <span className="font-semibold text-neutral-700 dark:text-neutral-300">
           {count.toLocaleString()}
         </span>{" "}
-        {count === 1 ? "visit" : "visits"}
+        {count === 1 ? "live visit" : "live visits"}
       </span>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ChatBot
-───────────────────────────────────────────────────────────── */
 function ChatBot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -137,7 +139,6 @@ function ChatBot() {
 
   return (
     <>
-      {/* Toggle button */}
       {!open && (
         <div className="fixed bottom-5 right-5 z-50 sm:bottom-6 sm:right-6">
           <Tooltip title="Chat with Ashish's AI" placement="left">
@@ -193,9 +194,8 @@ function ChatBot() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-end gap-2 ${
-                  msg.role === "user" ? "flex-row-reverse" : "flex-row"
-                }`}
+                className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"
+                  }`}
               >
                 {msg.role === "assistant" && (
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
@@ -203,11 +203,10 @@ function ChatBot() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${
-                    msg.role === "user"
+                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${msg.role === "user"
                       ? "rounded-br-sm bg-indigo-600 text-white"
                       : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
-                  }`}
+                    }`}
                 >
                   {msg.content}
                 </div>
@@ -260,9 +259,6 @@ function ChatBot() {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ResumeModal
-───────────────────────────────────────────────────────────── */
 function ResumeModal({ onClose }: { onClose: () => void }) {
   return (
     <div
@@ -342,9 +338,7 @@ function ResumeModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   BuiltByBanner
-───────────────────────────────────────────────────────────── */
+
 function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
   return (
     <div className="w-full rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
@@ -499,7 +493,7 @@ export default function Heading() {
         {isAuthenticated && !isLoading && (
           <Button asChild>
             <Link href="/documents">
-              Enter Notion Ai
+              Take me in
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
@@ -508,12 +502,11 @@ export default function Heading() {
         {!isAuthenticated && !isLoading && (
           <SignUpButton mode="modal">
             <Button>
-              Get Notion Ai free
+              Take me in
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </SignUpButton>
         )}
-
         <BuiltByBanner onViewResume={() => setResumeOpen(true)} />
       </div>
     </>
