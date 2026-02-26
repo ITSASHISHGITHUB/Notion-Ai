@@ -4,6 +4,8 @@ import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
 import { SignUpButton } from "@clerk/nextjs";
 import { useConvexAuth } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   ArrowRight,
   X,
@@ -12,6 +14,7 @@ import {
   MessageCircle,
   Send,
   Bot,
+  Eye,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
@@ -37,6 +40,32 @@ interface ChatMessage {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   ViewCounter
+───────────────────────────────────────────────────────────── */
+function ViewCounter() {
+  const count = useQuery(api.views.getCount);
+  const increment = useMutation(api.views.increment);
+
+  useEffect(() => {
+    increment();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (count === undefined) return null;
+
+  return (
+    <div className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+      <Eye className="h-3 w-3 text-indigo-500" />
+      <span>
+        <span className="font-semibold text-neutral-700 dark:text-neutral-300">
+          {count.toLocaleString()}
+        </span>{" "}
+        {count === 1 ? "visit" : "visits"}
+      </span>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
    ChatBot
 ───────────────────────────────────────────────────────────── */
 function ChatBot() {
@@ -45,7 +74,8 @@ function ChatBot() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hi! I'm Ashish's AI assistant. Ask me anything about his skills, experience, or projects! 👋",
+      content:
+        "Hi! I'm Ashish's AI assistant. Ask me anything about his skills, experience, or projects! 👋",
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -88,7 +118,10 @@ function ChatBot() {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Something went wrong. Please try again!" },
+        {
+          role: "assistant",
+          content: "Something went wrong. Please try again!",
+        },
       ]);
     } finally {
       setLoading(false);
@@ -160,8 +193,9 @@ function ChatBot() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex items-end gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"
-                  }`}
+                className={`flex items-end gap-2 ${
+                  msg.role === "user" ? "flex-row-reverse" : "flex-row"
+                }`}
               >
                 {msg.role === "assistant" && (
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900">
@@ -169,10 +203,11 @@ function ChatBot() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${msg.role === "user"
+                  className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed sm:text-sm ${
+                    msg.role === "user"
                       ? "rounded-br-sm bg-indigo-600 text-white"
                       : "rounded-bl-sm bg-neutral-100 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200"
-                    }`}
+                  }`}
                 >
                   {msg.content}
                 </div>
@@ -216,7 +251,7 @@ function ChatBot() {
               </button>
             </div>
             <p className="mt-1.5 text-center text-[10px] text-neutral-400">
-              Powered byGroqCloud
+              Powered by GroqCloud
             </p>
           </div>
         </div>
@@ -313,15 +348,11 @@ function ResumeModal({ onClose }: { onClose: () => void }) {
 function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
   return (
     <div className="w-full rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-
       {/* Identity row */}
       <div className="flex items-start gap-3">
-        {/* Avatar */}
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white shadow">
           AY
         </div>
-
-        {/* Name + chip + subtitle */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
@@ -367,7 +398,11 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
             color: "#374151",
             px: 1.5,
             minWidth: 0,
-            "&:hover": { borderColor: "#6366f1", color: "#6366f1", backgroundColor: "rgba(99,102,241,0.04)" },
+            "&:hover": {
+              borderColor: "#6366f1",
+              color: "#6366f1",
+              backgroundColor: "rgba(99,102,241,0.04)",
+            },
           }}
         >
           GitHub
@@ -389,13 +424,16 @@ function BuiltByBanner({ onViewResume }: { onViewResume: () => void }) {
             color: "#374151",
             px: 1.5,
             minWidth: 0,
-            "&:hover": { borderColor: "#6366f1", color: "#6366f1", backgroundColor: "rgba(99,102,241,0.04)" },
+            "&:hover": {
+              borderColor: "#6366f1",
+              color: "#6366f1",
+              backgroundColor: "rgba(99,102,241,0.04)",
+            },
           }}
         >
           LinkedIn
         </MuiButton>
 
-        {/* Resume pushed right */}
         <MuiButton
           onClick={onViewResume}
           variant="contained"
@@ -434,6 +472,9 @@ export default function Heading() {
       <ChatBot />
 
       <div className="w-full max-w-3xl space-y-5 px-4 sm:px-0">
+
+        {/* View counter */}
+        <ViewCounter />
 
         {/* Heading */}
         <div className="space-y-3">

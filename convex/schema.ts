@@ -15,4 +15,8 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_parent", ["userId", "parentDocument"]),
+
+  pageViews: defineTable({
+    count: v.number(),
+  }),
 });
