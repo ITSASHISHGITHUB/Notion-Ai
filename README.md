@@ -176,13 +176,6 @@ This project is deployed on **Vercel**. To deploy your own:
 
 ---
 
-## 📸 Screenshots
-
-> _Add screenshots of your app here for a better first impression._  
-> Tip: Use `![screenshot](./public/screenshot.png)` syntax.
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! If you find a bug or want to suggest a feature:
