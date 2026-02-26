@@ -9,12 +9,12 @@ import Link from "next/link";
 import { useState } from "react";
 
 const DevBadge = () => (
-  <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
-    <span className="relative flex h-1.5 w-1.5">
+  <div className="inline-flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-medium text-orange-700 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
+    <span className="relative flex h-1.5 w-1.5 shrink-0">
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-orange-500" />
     </span>
-    Open to opportunities
+    <span className="whitespace-nowrap">Open to opportunities</span>
   </div>
 );
 
@@ -23,7 +23,7 @@ const RESUME_PREVIEW_URL =
 
 const ResumeModal = ({ onClose }: { onClose: () => void }) => (
   <div
-    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
     onClick={onClose}
   >
     {/* Backdrop */}
@@ -31,32 +31,41 @@ const ResumeModal = ({ onClose }: { onClose: () => void }) => (
 
     {/* Modal frame */}
     <div
-      className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
-      style={{ height: "88vh" }}
+      className="relative z-10 flex w-full max-w-4xl flex-col overflow-hidden rounded-xl sm:rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900"
+      style={{ height: "90vh" }}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-3 dark:border-neutral-800">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white">
+      <div className="flex items-center justify-between border-b border-neutral-100 px-3 py-2.5 sm:px-5 sm:py-3 dark:border-neutral-800">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white">
             AY
           </div>
-          <div>
-            <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               Ashish Yadav — Resume
             </p>
             <p className="text-xs text-neutral-400">Frontend Developer · 2.5 yrs exp</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 ml-2 shrink-0">
           <a
             href="https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             Open in Drive
+          </a>
+          {/* Mobile: icon-only Drive link */}
+          <a
+            href="https://drive.google.com/file/d/1pDlY8FS3yLIHqa8TdBANJQZXnjwqyvvm/view"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sm:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-all hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          >
+            <ExternalLink className="h-4 w-4" />
           </a>
           <button
             onClick={onClose}
@@ -81,21 +90,21 @@ const ResumeModal = ({ onClose }: { onClose: () => void }) => (
 );
 
 const AboutMe = ({ onViewResume }: { onViewResume: () => void }) => (
-  <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-gradient-to-br from-white to-neutral-50 p-5 shadow-sm dark:border-neutral-800 dark:from-neutral-900 dark:to-neutral-950">
+  <div className="relative overflow-hidden rounded-xl border border-neutral-200 bg-gradient-to-br from-white to-neutral-50 p-4 sm:p-5 shadow-sm dark:border-neutral-800 dark:from-neutral-900 dark:to-neutral-950">
     {/* Top accent */}
     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400 to-transparent opacity-70" />
 
     {/* Section label */}
-    <div className="mb-4 flex items-center justify-between">
+    <div className="mb-4 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2">
-        <User className="h-4 w-4 text-indigo-500" />
+        <User className="h-4 w-4 shrink-0 text-indigo-500" />
         <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
           About Me
         </span>
       </div>
       <button
         onClick={onViewResume}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-700 transition-all hover:-translate-y-0.5 hover:shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-400"
+        className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-2.5 py-1.5 text-xs font-medium text-violet-700 transition-all hover:-translate-y-0.5 hover:shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-400"
       >
         <FileText className="h-3.5 w-3.5" />
         View Resume
@@ -112,11 +121,11 @@ const AboutMe = ({ onViewResume }: { onViewResume: () => void }) => (
       pixel-perfect UIs and shipping products that users enjoy.
     </p>
 
-    {/* Info grid */}
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    {/* Info grid — stacks on mobile */}
+    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
       <div className="flex items-start gap-2.5 rounded-lg bg-neutral-100/70 p-3 dark:bg-neutral-800/50">
         <GraduationCap className="mt-0.5 h-4 w-4 shrink-0 text-indigo-500" />
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
             Education
           </p>
@@ -127,7 +136,7 @@ const AboutMe = ({ onViewResume }: { onViewResume: () => void }) => (
       </div>
       <div className="flex items-start gap-2.5 rounded-lg bg-neutral-100/70 p-3 dark:bg-neutral-800/50">
         <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" />
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
             Current Role
           </p>
@@ -161,26 +170,25 @@ const BuiltByBanner = () => (
 
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       {/* Left: Identity */}
-      <div className="flex items-center gap-3">
-        {/* Avatar placeholder with initials */}
+      <div className="flex items-center gap-3 min-w-0">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-sm font-bold text-white shadow-inner">
           AY
         </div>
-        <div>
-          <div className="flex items-center gap-2">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
               Ashish Yadav
             </span>
             <DevBadge />
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
             Frontend Developer · Next.js · TypeScript · React
           </p>
         </div>
       </div>
 
-      {/* Right: Links */}
-      <div className="flex items-center gap-2 pl-[52px] sm:pl-0">
+      {/* Right: Links — no longer offset on mobile, just left-aligned naturally */}
+      <div className="flex items-center gap-2">
         <a
           href="https://github.com/ITSASHISHGITHUB"
           target="_blank"
@@ -204,8 +212,8 @@ const BuiltByBanner = () => (
       </div>
     </div>
 
-    {/* Stats row */}
-    <div className="mt-3 flex flex-wrap gap-3 border-t border-neutral-100 pt-3 dark:border-neutral-800">
+    {/* Stats row — wraps cleanly on mobile */}
+    <div className="mt-3 flex flex-col gap-2 border-t border-neutral-100 pt-3 dark:border-neutral-800 sm:flex-row sm:flex-wrap sm:gap-3">
       {[
         { icon: <Zap className="h-3 w-3" />, label: "64% faster load time at XpressBees" },
         { icon: <Code2 className="h-3 w-3" />, label: "2.5 yrs · Next.js · NestJS · Docker" },
@@ -214,7 +222,7 @@ const BuiltByBanner = () => (
           key={label}
           className="inline-flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500"
         >
-          <span className="text-violet-500">{icon}</span>
+          <span className="text-violet-500 shrink-0">{icon}</span>
           {label}
         </span>
       ))}
@@ -230,14 +238,15 @@ export const Heading = () => {
     <>
       {resumeOpen && <ResumeModal onClose={() => setResumeOpen(false)} />}
 
-      <div className="max-w-3xl space-y-4">
-        <h1 className="text-3xl font-bold sm:text-5xl md:text-5xl">
+      <div className="w-full max-w-3xl space-y-4 px-4 sm:px-0">
+        <h1 className="text-2xl font-bold leading-tight sm:text-4xl md:text-5xl">
           Your Ideas💡, Documents📕, & Plans🚀. Welcome to{" "}
           <span className="underline">Notion Ai</span>
         </h1>
-        <h2 className="text-base font-medium sm:text-xl">
-          Notion Ai is the connected workspace where <br /> better, faster work
-          happens.
+        <h2 className="text-sm font-medium sm:text-xl">
+          Notion Ai is the connected workspace where{" "}
+          <br className="hidden sm:block" />
+          better, faster work happens.
         </h2>
 
         {isLoading && (
@@ -262,10 +271,8 @@ export const Heading = () => {
           </SignUpButton>
         )}
 
-        {/* About Me card */}
         <AboutMe onViewResume={() => setResumeOpen(true)} />
 
-        {/* Developer credit banner */}
         <BuiltByBanner />
       </div>
     </>

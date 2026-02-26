@@ -10,10 +10,10 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 const MadeByDisclaimer = () => (
-  <div className="w-full max-w-md rounded-xl border border-dashed border-neutral-200 bg-neutral-50/80 px-5 py-4 dark:border-neutral-800 dark:bg-neutral-900/60">
+  <div className="w-full max-w-sm rounded-xl border border-dashed border-neutral-200 bg-neutral-50/80 px-4 py-4 sm:max-w-md sm:px-5 dark:border-neutral-800 dark:bg-neutral-900/60">
     {/* Label */}
     <div className="mb-3 flex items-center justify-center gap-2">
-      <Code2 className="h-3.5 w-3.5 text-violet-500" />
+      <Code2 className="h-3.5 w-3.5 shrink-0 text-violet-500" />
       <p className="text-center text-xs font-semibold uppercase tracking-widest text-neutral-400">
         Disclaimer
       </p>
@@ -89,24 +89,24 @@ const DocumentsPage = () => {
   };
 
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-4">
+    <div className="flex h-full flex-col items-center justify-center space-y-4 px-4 py-8 sm:px-6">
       <Image
         src="/empty.svg"
         alt="empty"
-        height="300"
-        width="300"
+        height={300}
+        width={300}
         priority
-        className="h-auto dark:hidden"
+        className="h-auto w-40 sm:w-56 md:w-72 dark:hidden"
       />
       <Image
         src="/empty-dark.svg"
         alt="empty"
-        height="300"
-        width="300"
+        height={300}
+        width={300}
         priority
-        className="hidden h-auto dark:block"
+        className="hidden h-auto w-40 sm:w-56 md:w-72 dark:block"
       />
-      <h2 className="text-lg font-medium">
+      <h2 className="text-center text-base font-medium sm:text-lg">
         Welcome to {user?.firstName}&apos;s Notion Ai
       </h2>
       <Button onClick={onCreate}>
